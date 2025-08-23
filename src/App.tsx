@@ -1,33 +1,16 @@
 
-import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import './App.css';
+import { useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import LocalSortPage from './LocalSortPage';
+import FundTable, { fields } from './FundTable';
+import type { FundRow } from './FundTable';
 
-// The columns to display, matching the API fields (no Link column)
-const fields = [
-  { key: 'symbol', label: 'Symbol' },
-  { key: 'symbolName', label: 'Name' },
-  { key: 'lastPrice', label: 'Last Price' },
-  { key: 'priceChange', label: 'Change' },
-  { key: 'percentChange', label: '% Change' },
-  { key: 'managedAssets', label: 'AUM' },
-  { key: 'tradeTime', label: 'Trade Time' },
-];
 
-type FundRow = {
-  symbol: string;
-  symbolName: string;
-  lastPrice: string;
-  priceChange: string;
-  percentChange: string;
-  managedAssets: string;
-  tradeTime: string;
-};
-
-// Use the local proxy server
 const API_URL = 'http://localhost:5174/api/funds';
 
-function App() {
-  // State for table data, sorting, and row limit
+function ApiSortPage(): ReactElement {
   const [data, setData] = useState<FundRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +18,6 @@ function App() {
   const [orderDir, setOrderDir] = useState<'asc' | 'desc'>('asc');
   const [limit, setLimit] = useState(50);
 
-  // Fetch data from the API whenever sorting or limit changes
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
@@ -55,7 +37,6 @@ function App() {
         });
         if (!response.ok) throw new Error('API error');
         const json = await response.json();
-        // The API returns data in json.data; map to our FundRow type
         setData(json.data.map((row: any) => ({
           symbol: row.symbol,
           symbolName: row.symbolName,
@@ -63,20 +44,10 @@ function App() {
           priceChange: row.priceChange,
           percentChange: row.percentChange,
           managedAssets: row.managedAssets,
-          tradeTime: formatTradeTime(row.raw?.tradeTime),
+          tradeTime: row.tradeTime,
         })));
-
-  // Format Unix timestamp to YYYY-MM-DD
-  function formatTradeTime(ts: number | undefined): string {
-    if (!ts) return '';
-    const date = new Date(ts * 1000);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
       } catch (err: any) {
-        setError(err.message || 'Unknown error');
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -84,88 +55,70 @@ function App() {
     fetchData();
   }, [orderBy, orderDir, limit]);
 
-  // Handle sorting when a column header is clicked
-  function handleSort(col: string) {
-    if (orderBy === col) {
-      setOrderDir(orderDir === 'asc' ? 'desc' : 'asc');
-    } else {
-      setOrderBy(col);
-      setOrderDir('asc');
+    function handleSort(col: string) {
+      if (orderBy === col) {
+        setOrderDir(orderDir === 'asc' ? 'desc' : 'asc');
+      } else {
+        setOrderBy(col);
+        setOrderDir('asc');
+      }
     }
-  }
 
-  // Render sort indicator
-  function sortIndicator(col: string) {
-    if (orderBy !== col) return null;
-    return orderDir === 'asc' ? ' ▲' : ' ▼';
-  }
-
-  // Helper for color formatting
-  function getChangeClass(val: string) {
-    if (!val || val === 'unch') return '';
-    if (val.startsWith('-')) return 'neg';
-    if (val.startsWith('+')) return 'pos';
-    return '';
-  }
+  // handleSort already defined below, remove duplicate
 
   return (
-    <div className="container">
-      <h1>Mutual Funds Leader</h1>
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-      <div style={{ position: 'relative', overflowX: 'auto' }}>
-        {/* Loading overlay */}
-        {loading && (
-          <div className="loading-overlay">
-            <div className="spinner"></div>
-          </div>
-        )}
-        <table className={"fund-table" + (loading ? " disabled" : "") }>
-          <thead>
-            <tr>
-              {fields.map(col => (
-                <th
-                  key={col.key}
-                  onClick={() => handleSort(col.key)}
-                  style={{ cursor: 'pointer', userSelect: 'none' }}
-                >
-                  {col.label}{sortIndicator(col.key)}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row, i) => (
-              <tr key={row.symbol + i}>
-                <td className="left">
-                  <a href={`https://www.theglobeandmail.com/investing/markets/funds/${row.symbol}/`} target="_blank" rel="noopener noreferrer">
-                    {row.symbol}
-                  </a>
-                </td>
-                <td className="left">{row.symbolName}</td>
-                <td className="center">{row.lastPrice}</td>
-                <td className={getChangeClass(row.priceChange) + ' center'}>{row.priceChange}</td>
-                <td className={getChangeClass(row.percentChange) + ' center'}>{row.percentChange}</td>
-                <td className="center">{row.managedAssets}</td>
-                <td className="center">{row.tradeTime}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div style={{ marginTop: 16 }}>
+    <>
+      <FundTable
+        data={data}
+        loading={loading}
+        error={error}
+        orderBy={orderBy}
+        orderDir={orderDir}
+        onSort={handleSort}
+        showCount={false}
+      />
+      <div style={{ marginBottom: 12, textAlign: 'left', color: '#666', width: '90%', marginLeft: 'auto', marginRight: 'auto' }}>
         <label>
-          Rows to display:
-          <select value={limit} onChange={e => setLimit(Number(e.target.value))} style={{ marginLeft: 8 }}>
-            {[25, 50, 100, 250].map(n => (
-              <option key={n} value={n}>{n}</option>
-            ))}
+          Number of Funds:
+          <select
+            value={limit}
+            onChange={e => setLimit(Number(e.target.value))}
+            style={{ width: 80, marginLeft: 8 }}
+          >
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+            <option value={200}>200</option>
           </select>
         </label>
       </div>
-      <p style={{ marginTop: 24, fontSize: 12, color: '#888' }}>
+      <div style={{ color: '#bbb', fontSize: 14, textAlign: 'center', margin: '32px 0 0 0' }}>
         Data from Globe and Mail API. For demo purposes only.
-      </p>
-    </div>
+      </div>
+    </>
+  );
+}
+
+
+function HeaderWithRouter(): ReactElement {
+  const location = useLocation();
+  return (
+    <header style={{ marginBottom: 8, padding: 12, background: '#f8f9fa', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'flex-end', gap: 24 }}>
+      <Link to="/" style={{ fontWeight: location.pathname === '/' ? 'bold' : undefined }}>API Sorting</Link>
+      <Link to="/local" style={{ fontWeight: location.pathname === '/local' ? 'bold' : undefined }}>Front-End Sorting</Link>
+    </header>
+  );
+}
+
+function App(): ReactElement {
+  return (
+    <Router>
+      <HeaderWithRouter />
+      <Routes>
+        <Route path="/" element={<ApiSortPage />} />
+        <Route path="/local" element={<LocalSortPage />} />
+      </Routes>
+    </Router>
   );
 }
 
