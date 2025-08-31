@@ -4,7 +4,7 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
 import LocalSortPage from './LocalSortPage';
-import FundTable, { fields } from './FundTable';
+import FundTable from './FundTable';
 import type { FundRow } from './FundTable';
 
 
