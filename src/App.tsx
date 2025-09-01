@@ -14,7 +14,7 @@ function ApiSortPage(): ReactElement {
   const [data, setData] = useState<FundRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [orderBy, setOrderBy] = useState('symbol');
+  const [orderBy, setOrderBy] = useState<string | null>(null);
   const [orderDir, setOrderDir] = useState<'asc' | 'desc'>('asc');
   const [limit, setLimit] = useState(50);
 
@@ -23,17 +23,23 @@ function ApiSortPage(): ReactElement {
       setLoading(true);
       setError(null);
       try {
+        const requestBody: any = {
+          fields: 'symbol,symbolName,lastPrice,priceChange,percentChange,managedAssets.format(millions),tradeTime,quickLink',
+          lists: 'funds.aum.tsx',
+          fieldCaptions: { managedAssets: 'AUM' },
+          limit,
+        };
+
+        // Only add sorting parameters if a column has been clicked
+        if (orderBy) {
+          requestBody.orderBy = orderBy;
+          requestBody.orderDir = orderDir;
+        }
+
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fields: 'symbol,symbolName,lastPrice,priceChange,percentChange,managedAssets.format(millions),tradeTime,quickLink',
-            lists: 'funds.aum.tsx',
-            fieldCaptions: { managedAssets: 'AUM' },
-            orderDir,
-            orderBy,
-            limit,
-          }),
+          body: JSON.stringify(requestBody),
         });
         if (!response.ok) throw new Error('API error');
         const json = await response.json();

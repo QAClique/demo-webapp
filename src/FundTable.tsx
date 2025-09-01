@@ -68,7 +68,7 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
   data: FundRow[];
   loading: boolean;
   error: string | null;
-  orderBy: string;
+  orderBy: string | null;
   orderDir: 'asc' | 'desc';
   onSort: (col: string) => void;
   showCount?: boolean;

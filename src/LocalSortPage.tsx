@@ -13,7 +13,7 @@ function LocalSortPage() {
   const [data, setData] = useState<FundRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [orderBy, setOrderBy] = useState('symbol');
+  const [orderBy, setOrderBy] = useState<string | null>(null);
   const [orderDir, setOrderDir] = useState<'asc' | 'desc'>('asc');
   // No limit: always load all funds for front-end sorting
 
@@ -63,8 +63,8 @@ function LocalSortPage() {
     }
   }
 
-  // Locally sort data
-  const sortedData = [...data].sort((a, b) => {
+  // Locally sort data only if a column has been selected for sorting
+  const sortedData = orderBy ? [...data].sort((a, b) => {
     const aVal = a[orderBy as keyof typeof data[0]];
     const bVal = b[orderBy as keyof typeof data[0]];
     if (!aVal || !bVal) return 0;
@@ -72,7 +72,7 @@ function LocalSortPage() {
       return (Number(aVal) - Number(bVal)) * (orderDir === 'asc' ? 1 : -1);
     }
     return String(aVal).localeCompare(String(bVal)) * (orderDir === 'asc' ? 1 : -1);
-  });
+  }) : data;
 
   return (
     <>
