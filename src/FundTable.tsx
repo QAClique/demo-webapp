@@ -86,12 +86,19 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
             {fields.map(col => (
               <th
                 key={col.key}
+                data-testid={col.key}
                 style={{ cursor: 'pointer', userSelect: 'none', padding: 8, borderBottom: '1.5px solid #bbb' }}
                 onClick={() => onSort(col.key)}
               >
                 {col.label}
                 {orderBy === col.key && (
-                  <span style={{ marginLeft: 4 }}>{orderDir === 'asc' ? '▲' : '▼'}</span>
+                  <span
+                    data-testid={`sort-indicator-${col.key}`}
+                    data-sort-direction={orderDir}
+                    style={{ marginLeft: 4 }}
+                  >
+                    {orderDir === 'asc' ? '▲' : '▼'}
+                  </span>
                 )}
               </th>
             ))}
