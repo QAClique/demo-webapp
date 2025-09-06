@@ -110,8 +110,8 @@ function HeaderWithRouter(): ReactElement {
   const location = useLocation();
   return (
     <header style={{ marginBottom: 8, padding: 12, background: '#f8f9fa', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'flex-end', gap: 24 }}>
-      <Link to="/" style={{ fontWeight: location.pathname === '/' ? 'bold' : undefined }}>API Sorting</Link>
-      <Link to="/local" style={{ fontWeight: location.pathname === '/local' ? 'bold' : undefined }}>Front-End Sorting</Link>
+      <Link to="/api-sort" style={{ fontWeight: location.pathname === '/api-sort' ? 'bold' : undefined }}>API Sorting</Link>
+      <Link to="/local-sort" style={{ fontWeight: location.pathname === '/local-sort' ? 'bold' : undefined }}>Client-Side Sorting</Link>
     </header>
   );
 }
@@ -122,7 +122,8 @@ function App(): ReactElement {
       <HeaderWithRouter />
       <Routes>
         <Route path="/" element={<ApiSortPage />} />
-        <Route path="/local" element={<LocalSortPage />} />
+        <Route path="/api-sort" element={<ApiSortPage />} />
+        <Route path="/local-sort" element={<LocalSortPage />} />
       </Routes>
     </Router>
   );
