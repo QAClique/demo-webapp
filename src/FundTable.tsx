@@ -6,6 +6,7 @@ export type FundRow = {
   percentChange: string;
   managedAssets: string;
   tradeTime: string;
+  rawTradeTime?: number;
 };
 
 export const fields = [
@@ -22,7 +23,7 @@ function formatNumber(val: string) {
   if (val == null || val === '') return '';
   const num = Number(val.replace(/[^\d.-]/g, ''));
   if (isNaN(num)) return val;
-  return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 });
 }
 
 function formatAUM(val: string) {
@@ -43,25 +44,18 @@ function formatChange(val: string) {
   return <span style={{ color, fontWeight: 500 }}>{sign}{raw}</span>;
 }
 
-function formatDate(val: string) {
-  if (!val) return '';
-  // If it's a unix timestamp (seconds), convert to date
-  if (/^\d+$/.test(val)) {
-    const date = new Date(Number(val) * 1000);
+function formatDate(rawTradeTime?: number) {
+  // Use the raw trade time (Unix timestamp in seconds)
+  if (rawTradeTime != null) {
+    // Convert seconds to milliseconds
+    const date = new Date(rawTradeTime * 1000);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
-  // If it's a date string, parse and reformat as YYYY-MM-DD
-  const d = new Date(val);
-  if (!isNaN(d.getTime())) {
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-  return val;
+
+  return '';
 }
 
 export default function FundTable({ data, loading, error, orderBy, orderDir, onSort, showCount }: {
@@ -86,7 +80,7 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
             {fields.map(col => (
               <th
                 key={col.key}
-                data-testid={col.key}
+                data-testid={col.key === 'tradeTime' ? 'raw.tradeTime' : col.key}
                 style={{ cursor: 'pointer', userSelect: 'none', padding: 8, borderBottom: '1.5px solid #bbb' }}
                 onClick={() => onSort(col.key)}
               >
@@ -140,11 +134,11 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
                     content = formatChange(content);
                   }
                   if (col.key === 'tradeTime') {
-                    content = formatDate(content);
+                    content = formatDate(row.rawTradeTime);
                     style = { ...style, color: undefined };
                   }
                   return (
-                    <td key={col.key} className={col.key === 'symbol' ? 'left' : ''} style={style}>
+                    <td key={col.key} className={col.key === 'symbol' ? 'left' : ''} style={style} data-testid={col.key === 'tradeTime' ? 'raw.tradeTime' : col.key}>
                       {content}
                     </td>
                   );

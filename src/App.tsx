@@ -24,7 +24,7 @@ function ApiSortPage(): ReactElement {
       setError(null);
       try {
         const requestBody: any = {
-          fields: 'symbol,symbolName,lastPrice,priceChange,percentChange,managedAssets.format(millions),tradeTime,quickLink',
+          fields: 'symbol,symbolName,lastPrice,priceChange,percentChange,managedAssets.format(millions),tradeTime,raw.tradeTime,quickLink',
           lists: 'funds.aum.tsx',
           fieldCaptions: { managedAssets: 'AUM' },
           limit,
@@ -51,6 +51,7 @@ function ApiSortPage(): ReactElement {
           percentChange: row.percentChange,
           managedAssets: row.managedAssets,
           tradeTime: row.tradeTime,
+          rawTradeTime: row.raw?.tradeTime,
         })));
       } catch (err: any) {
         setError(err.message);
@@ -90,6 +91,7 @@ function ApiSortPage(): ReactElement {
             value={limit}
             onChange={e => setLimit(Number(e.target.value))}
             style={{ width: 80, marginLeft: 8 }}
+            data-testid="number-of-funds-select"
           >
             <option value={25}>25</option>
             <option value={50}>50</option>

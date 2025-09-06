@@ -27,7 +27,7 @@ function LocalSortPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            fields: 'symbol,symbolName,lastPrice,priceChange,percentChange,managedAssets.format(millions),tradeTime,quickLink',
+            fields: 'symbol,symbolName,lastPrice,priceChange,percentChange,managedAssets.format(millions),tradeTime,raw.tradeTime,quickLink',
             lists: 'funds.aum.tsx',
             fieldCaptions: { managedAssets: 'AUM' },
             // No limit: get all funds
@@ -43,6 +43,7 @@ function LocalSortPage() {
           percentChange: row.percentChange,
           managedAssets: row.managedAssets,
           tradeTime: row.tradeTime,
+          rawTradeTime: row.raw?.tradeTime,
         })));
       } catch (err: any) {
         setError(err.message);
