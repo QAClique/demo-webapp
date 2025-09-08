@@ -34,14 +34,14 @@ function formatAUM(val: string) {
 }
 
 function formatChange(val: string) {
-  if (val == null || val === '') return '';
+  if (val == null || val === '') return { content: '', className: '' };
   // Remove any leading + from API, we'll add our own
   const raw = val.replace(/^\+/, '');
   const num = Number(raw.replace(/[^\d.-]/g, ''));
-  if (isNaN(num)) return val;
-  const color = num > 0 ? '#16a34a' : num < 0 ? '#dc2626' : undefined;
+  if (isNaN(num)) return { content: val, className: '' };
+  const className = num > 0 ? 'pos' : num < 0 ? 'neg' : '';
   const sign = num > 0 ? '+' : '';
-  return <span style={{ color, fontWeight: 500 }}>{sign}{raw}</span>;
+  return { content: `${sign}${raw}`, className };
 }
 
 function formatDate(rawTradeTime?: number) {
@@ -106,6 +106,8 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
                 {fields.map(col => {
                   let content: any = row[col.key as keyof FundRow];
                   let style: any = { padding: 8, borderBottom: isLast ? '1.5px solid #bbb' : '1px solid #f3f3f3', textAlign: 'center' };
+                  let className = col.key === 'symbol' ? 'left' : '';
+
                   // Only Name column is left-aligned
                   if (col.key === 'symbol') {
                     style = { ...style, fontWeight: 500 };
@@ -131,14 +133,18 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
                     content = formatAUM(content);
                   }
                   if (col.key === 'priceChange' || col.key === 'percentChange') {
-                    content = formatChange(content);
+                    const changeResult = formatChange(content);
+                    content = changeResult.content;
+                    if (changeResult.className) {
+                      className += (className ? ' ' : '') + changeResult.className;
+                    }
                   }
                   if (col.key === 'tradeTime') {
                     content = formatDate(row.rawTradeTime);
                     style = { ...style, color: undefined };
                   }
                   return (
-                    <td key={col.key} className={col.key === 'symbol' ? 'left' : ''} style={style} data-testid={col.key === 'tradeTime' ? 'raw.tradeTime' : col.key}>
+                    <td key={col.key} className={className} style={style} data-testid={col.key === 'tradeTime' ? 'raw.tradeTime' : col.key}>
                       {content}
                     </td>
                   );
