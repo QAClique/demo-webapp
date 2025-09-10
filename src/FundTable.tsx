@@ -19,20 +19,6 @@ export const fields = [
   { key: 'tradeTime', label: 'Trade Time' },
 ];
 
-function formatNumber(val: string) {
-  if (val == null || val === '') return '';
-  const num = Number(val.replace(/[^\d.-]/g, ''));
-  if (isNaN(num)) return val;
-  return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 });
-}
-
-function formatAUM(val: string) {
-  if (val == null || val === '') return '';
-  const num = Number(val.replace(/[^\d.-]/g, ''));
-  if (isNaN(num)) return val;
-  return num.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' M';
-}
-
 function formatChange(val: string) {
   if (val == null || val === '') return { content: '', className: '' };
   // Remove any leading + from API, we'll add our own
@@ -125,12 +111,6 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
                   }
                   if (col.key === 'symbolName') {
                     style = { ...style, textAlign: 'left' };
-                  }
-                  if (col.key === 'lastPrice') {
-                    content = formatNumber(content);
-                  }
-                  if (col.key === 'managedAssets') {
-                    content = formatAUM(content);
                   }
                   if (col.key === 'priceChange' || col.key === 'percentChange') {
                     const changeResult = formatChange(content);
