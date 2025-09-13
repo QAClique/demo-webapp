@@ -97,7 +97,6 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
                   // Only Name column is left-aligned
                   if (col.key === 'symbol') {
                     style = { ...style, fontWeight: 500 };
-                    // Restore link to Globe site
                     content = (
                       <a
                         href={`https://www.theglobeandmail.com/investing/markets/funds/${row.symbol}`}

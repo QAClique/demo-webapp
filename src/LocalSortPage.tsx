@@ -3,8 +3,6 @@ import './App.css';
 import FundTable from './FundTable';
 import type { FundRow } from './FundTable';
 
-// FundRow imported from FundTable
-
 // Use the local proxy server
 const API_URL = 'http://localhost:5174/api/funds';
 
@@ -15,7 +13,6 @@ function LocalSortPage() {
   const [error, setError] = useState<string | null>(null);
   const [orderBy, setOrderBy] = useState<string | null>(null);
   const [orderDir, setOrderDir] = useState<'asc' | 'desc'>('asc');
-  // No limit: always load all funds for front-end sorting
 
   // Fetch data from the API (no orderBy/orderDir)
   useEffect(() => {
