@@ -26,20 +26,8 @@ app.post('/api/funds', async (req, res) => {
       const mockDataContent = fs.readFileSync(mockFilePath, 'utf8');
       const mockData = JSON.parse(mockDataContent);
 
-      // Apply backend-style filtering based on request body
-      let data = mockData.data;
-
-      // For mock data, DO NOT apply sorting - this allows demonstration of:
-      // 1. API Sort page: frontend sends orderBy/orderDir but gets unsorted data (shows backend would normally sort)
-      // 2. Front-End Sorting page: frontend gets unsorted data and sorts it client-side
-      // This preserves the educational value of showing the difference between the two approaches
-
-      // Apply limit if requested
-      if (req.body.limit) {
-        data = data.slice(0, req.body.limit);
-      }
-
-      res.json({ data });
+      // Return the exact JSON file as the API response
+      res.json(mockData);
     } else {
       console.log('Using real API');
 
@@ -52,8 +40,9 @@ app.post('/api/funds', async (req, res) => {
       const data = await apiRes.json();
       res.json(data);
     }
-  } catch (err: any) {
-    res.status(500).json({ error: 'Server error', details: err.message });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: 'Server error', details: errorMessage });
   }
 });
 
