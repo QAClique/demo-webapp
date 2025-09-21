@@ -41,6 +41,8 @@ function LocalSortPage() {
           managedAssets: row.managedAssets,
           tradeTime: row.tradeTime,
           rawTradeTime: row.raw?.tradeTime,
+          rawPriceChange: row.raw?.priceChange,
+          rawPercentChange: row.raw?.percentChange,
         })));
       } catch (err: any) {
         setError(err.message);
@@ -66,10 +68,23 @@ function LocalSortPage() {
     const aVal = a[orderBy as keyof typeof data[0]];
     const bVal = b[orderBy as keyof typeof data[0]];
     if (!aVal || !bVal) return 0;
-    if (!isNaN(Number(aVal)) && !isNaN(Number(bVal))) {
-      return (Number(aVal) - Number(bVal)) * (orderDir === 'asc' ? 1 : -1);
+
+    // Use raw numeric values for change columns when available
+    let aCompareVal = aVal;
+    let bCompareVal = bVal;
+
+    if (orderBy === 'priceChange' && a.rawPriceChange !== undefined && b.rawPriceChange !== undefined) {
+      aCompareVal = a.rawPriceChange;
+      bCompareVal = b.rawPriceChange;
+    } else if (orderBy === 'percentChange' && a.rawPercentChange !== undefined && b.rawPercentChange !== undefined) {
+      aCompareVal = a.rawPercentChange;
+      bCompareVal = b.rawPercentChange;
     }
-    return String(aVal).localeCompare(String(bVal)) * (orderDir === 'asc' ? 1 : -1);
+
+    if (!isNaN(Number(aCompareVal)) && !isNaN(Number(bCompareVal))) {
+      return (Number(aCompareVal) - Number(bCompareVal)) * (orderDir === 'asc' ? 1 : -1);
+    }
+    return String(aCompareVal).localeCompare(String(bCompareVal)) * (orderDir === 'asc' ? 1 : -1);
   }) : data;
 
   return (

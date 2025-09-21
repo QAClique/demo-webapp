@@ -7,6 +7,8 @@ export type FundRow = {
   managedAssets: string;
   tradeTime: string;
   rawTradeTime?: number;
+  rawPriceChange?: number;
+  rawPercentChange?: number;
 };
 
 export const fields = [
