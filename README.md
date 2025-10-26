@@ -76,6 +76,20 @@ npm run dev
 
 Visit [http://localhost:5173](http://localhost:5173) in your browser.
 
+### 5. Run Integration test
+
+To run the integration test, fire up Webdriver.io:
+
+```bash
+npx wdio
+```
+
+This will silently run the test. To see the actual browser output, set environment variable DEBUG to true and then run. A shortcut to do so in Linux/Mac:
+
+```bash
+DEBUG=true npx wdio
+```
+
 ## Notes
 
 - The Back End proxy is required to bypass CORS when accessing the Globe and Mail API.
