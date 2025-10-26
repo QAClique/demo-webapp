@@ -41,9 +41,9 @@ const mockApiResponse = {
 describe('React Component Tests', () => {
   it('should show sort indicator on Last Price column', async () => {
     // Mock fetch globally in the browser context
-    await browser.execute((mockData) => {
+    await browser.execute((mockData: any) => {
       const originalFetch = window.fetch;
-      window.fetch = async (url, options) => {
+      window.fetch = async (url: any, options: any) => {
         if (url.includes('/api/funds')) {
           return new Response(JSON.stringify(mockData), {
             status: 200,
@@ -61,6 +61,6 @@ describe('React Component Tests', () => {
 
     await $('[data-testid="sort-indicator-lastPrice"]')
       .waitForDisplayed({ timeoutMsg: 'Expected: Sort indicator is displayed in the "Last Price" column, but it was not' });
-    await browser.pause(15000); // Pause to visually confirm the sort indicator during test run
+    await browser.pause(15000); // Pause to visually confirm the sort indicator during demo (use DEBUG=true to see output)
   })
 })
