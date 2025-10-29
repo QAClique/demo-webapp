@@ -38,7 +38,7 @@ const mockApiResponse = {
   ]
 };
 
-describe('React Component Tests', () => {
+describe('Front End Sorting Tests', () => {
   it('should show sort indicator on Last Price column', async () => {
     // Mock fetch globally in the browser context
     await browser.execute((mockData: any) => {
