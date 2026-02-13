@@ -47,6 +47,7 @@ Demo web app displaying a sortable table of mutual fund data (from Globe and Mai
 - **`ApiFundRow`** (shared.ts): Raw API response row shape with nested `raw` object
 
 ## Conventions
+- **Style guide:** AirBnB JavaScript style — always use `===`/`!==` (never `==`/`!=`), `const`/`let` (never `var`), arrow functions for callbacks, template literals over string concatenation
 - React components use `function` declarations with `ReactElement` return type
 - Error handling uses `catch (err: unknown)` with `instanceof Error` guard
 - CSS classes for table styling: `.fund-table`, `.disabled`, `.pos`, `.neg`, `.left`

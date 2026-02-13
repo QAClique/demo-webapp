@@ -56,7 +56,7 @@ function LocalSortPage(): ReactElement {
   const sortedData = orderBy ? [...data].sort((a, b) => {
     const aVal = a[orderBy as keyof FundRow];
     const bVal = b[orderBy as keyof FundRow];
-    if (aVal == null || bVal == null) return 0;
+    if (aVal === null || aVal === undefined || bVal === null || bVal === undefined) return 0;
 
     // Use raw numeric values for change columns when available
     let aCompareVal: string | number = aVal;

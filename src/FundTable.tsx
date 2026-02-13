@@ -24,7 +24,7 @@ const fields = [
 ];
 
 function formatChange(val: string) {
-  if (val == null || val === '') return { content: '', className: '' };
+  if (val === null || val === undefined || val === '') return { content: '', className: '' };
   // Remove any leading + from API, we'll add our own
   const raw = val.replace(/^\+/, '');
   const num = Number(raw.replace(/[^\d.-]/g, ''));
@@ -36,7 +36,7 @@ function formatChange(val: string) {
 
 function formatDate(rawTradeTime?: number) {
   // Use the raw trade time (Unix timestamp in seconds)
-  if (rawTradeTime != null) {
+  if (rawTradeTime !== null && rawTradeTime !== undefined) {
     // Convert seconds to milliseconds
     const date = new Date(rawTradeTime * 1000);
     const year = date.getFullYear();
