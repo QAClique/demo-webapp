@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
 import './App.css';
 import FundTable from './FundTable';
 import type { FundRow } from './FundTable';
+import { API_URL, useSortState } from './shared';
+import type { ApiFundRow } from './shared';
 
-// Use the local proxy server
-const API_URL = 'http://localhost:5174/api/funds';
-
-function LocalSortPage() {
-  // State for table data, sorting, and row limit
+function LocalSortPage(): ReactElement {
+  // State for table data and loading
   const [data, setData] = useState<FundRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [orderBy, setOrderBy] = useState<string | null>(null);
-  const [orderDir, setOrderDir] = useState<'asc' | 'desc'>('asc');
+  const { orderBy, orderDir, handleSort } = useSortState();
 
   // Fetch data from the API (no orderBy/orderDir)
   useEffect(() => {
@@ -32,7 +31,7 @@ function LocalSortPage() {
         });
         if (!response.ok) throw new Error('API error');
         const json = await response.json();
-        setData(json.data.map((row: any) => ({
+        setData(json.data.map((row: ApiFundRow) => ({
           symbol: row.symbol,
           symbolName: row.symbolName,
           lastPrice: row.lastPrice,
@@ -44,8 +43,8 @@ function LocalSortPage() {
           rawPriceChange: row.raw?.priceChange,
           rawPercentChange: row.raw?.percentChange,
         })));
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
@@ -53,25 +52,15 @@ function LocalSortPage() {
     fetchData();
   }, []);
 
-  // Local sort handler
-  function handleSort(col: string) {
-    if (orderBy === col) {
-      setOrderDir(orderDir === 'asc' ? 'desc' : 'asc');
-    } else {
-      setOrderBy(col);
-      setOrderDir('asc');
-    }
-  }
-
   // Locally sort data only if a column has been selected for sorting
   const sortedData = orderBy ? [...data].sort((a, b) => {
-    const aVal = a[orderBy as keyof typeof data[0]];
-    const bVal = b[orderBy as keyof typeof data[0]];
-    if (!aVal || !bVal) return 0;
+    const aVal = a[orderBy as keyof FundRow];
+    const bVal = b[orderBy as keyof FundRow];
+    if (aVal == null || bVal == null) return 0;
 
     // Use raw numeric values for change columns when available
-    let aCompareVal = aVal;
-    let bCompareVal = bVal;
+    let aCompareVal: string | number = aVal;
+    let bCompareVal: string | number = bVal;
 
     if (orderBy === 'priceChange' && a.rawPriceChange !== undefined && b.rawPriceChange !== undefined) {
       aCompareVal = a.rawPriceChange;

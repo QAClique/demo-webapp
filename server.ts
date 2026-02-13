@@ -8,7 +8,7 @@ const app = express();
 const PORT = 5174;
 const MOCK_DATA_FILE = process.env.MOCK_DATA_FILE;
 
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
 app.post('/api/funds', async (req, res) => {
@@ -42,7 +42,8 @@ app.post('/api/funds', async (req, res) => {
     }
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-    res.status(500).json({ error: 'Server error', details: errorMessage });
+    console.error('Request failed:', errorMessage);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
