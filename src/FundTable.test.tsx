@@ -41,10 +41,10 @@ const mockApiResponse = {
 describe('Front End Sorting Tests', () => {
   it('should show sort indicator on Last Price column', async () => {
     // Mock fetch globally in the browser context
-    await browser.execute((mockData: any) => {
+    await browser.execute((mockData: typeof mockApiResponse) => {
       const originalFetch = window.fetch;
-      window.fetch = async (url: any, options: any) => {
-        if (url.includes('/api/funds')) {
+      window.fetch = async (url: string | URL | Request, options?: RequestInit) => {
+        if (String(url).includes('/api/funds')) {
           return new Response(JSON.stringify(mockData), {
             status: 200,
             headers: {

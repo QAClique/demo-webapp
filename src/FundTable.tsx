@@ -1,3 +1,5 @@
+import type { CSSProperties, ReactNode } from 'react';
+
 export type FundRow = {
   symbol: string;
   symbolName: string;
@@ -11,7 +13,7 @@ export type FundRow = {
   rawPercentChange?: number;
 };
 
-export const fields = [
+const fields = [
   { key: 'symbol', label: 'Symbol' },
   { key: 'symbolName', label: 'Name' },
   { key: 'lastPrice', label: 'Last Price' },
@@ -22,7 +24,7 @@ export const fields = [
 ];
 
 function formatChange(val: string) {
-  if (val == null || val === '') return { content: '', className: '' };
+  if (val === null || val === undefined || val === '') return { content: '', className: '' };
   // Remove any leading + from API, we'll add our own
   const raw = val.replace(/^\+/, '');
   const num = Number(raw.replace(/[^\d.-]/g, ''));
@@ -34,7 +36,7 @@ function formatChange(val: string) {
 
 function formatDate(rawTradeTime?: number) {
   // Use the raw trade time (Unix timestamp in seconds)
-  if (rawTradeTime != null) {
+  if (rawTradeTime !== null && rawTradeTime !== undefined) {
     // Convert seconds to milliseconds
     const date = new Date(rawTradeTime * 1000);
     const year = date.getFullYear();
@@ -62,14 +64,14 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
       )}
       {error && <div style={{ color: 'red' }}>{error}</div>}
   <h1 style={{ fontWeight: 800, fontSize: '2.8rem', margin: '8px 0 12px 0', textAlign: 'left', letterSpacing: 0.5, lineHeight: 1.1 }}>Mutual Funds Leader</h1>
-  <table className={`fund-table${loading ? ' disabled' : ''}`} style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, border: '1.5px solid #bbb' }}>
+  <table className={`fund-table${loading ? ' disabled' : ''}`} style={{ border: '1.5px solid #bbb' }}>
         <thead>
           <tr>
             {fields.map(col => (
               <th
                 key={col.key}
                 data-testid={col.key === 'tradeTime' ? 'raw.tradeTime' : col.key}
-                style={{ cursor: 'pointer', userSelect: 'none', padding: 8, borderBottom: '1.5px solid #bbb' }}
+                style={{ cursor: 'pointer', userSelect: 'none', borderBottom: '1.5px solid #bbb' }}
                 onClick={() => onSort(col.key)}
               >
                 {col.label}
@@ -92,11 +94,11 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
             return (
               <tr key={row.symbol + i}>
                 {fields.map(col => {
-                  let content: any = row[col.key as keyof FundRow];
-                  let style: any = { padding: 8, borderBottom: isLast ? '1.5px solid #bbb' : '1px solid #f3f3f3', textAlign: 'center' };
+                  let content: ReactNode = row[col.key as keyof FundRow];
+                  let style: CSSProperties = { borderBottom: isLast ? '1.5px solid #bbb' : undefined, textAlign: 'center' };
                   let className = col.key === 'symbol' ? 'left' : '';
 
-                  // Only Name column is left-aligned
+                  // Symbol column: left-aligned with external link
                   if (col.key === 'symbol') {
                     style = { ...style, fontWeight: 500 };
                     content = (
@@ -104,7 +106,6 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
                         href={`https://www.theglobeandmail.com/investing/markets/funds/${row.symbol}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ textDecoration: 'underline', color: 'inherit', fontWeight: 'inherit', fontSize: 'inherit', background: 'none' }}
                       >
                         {row.symbol}
                       </a>
@@ -114,7 +115,7 @@ export default function FundTable({ data, loading, error, orderBy, orderDir, onS
                     style = { ...style, textAlign: 'left' };
                   }
                   if (col.key === 'priceChange' || col.key === 'percentChange') {
-                    const changeResult = formatChange(content);
+                    const changeResult = formatChange(content as string);
                     content = changeResult.content;
                     if (changeResult.className) {
                       className += (className ? ' ' : '') + changeResult.className;

@@ -6,16 +6,15 @@ import type { ReactElement } from 'react';
 import LocalSortPage from './LocalSortPage';
 import FundTable from './FundTable';
 import type { FundRow } from './FundTable';
+import { API_URL, useSortState } from './shared';
+import type { ApiFundRow } from './shared';
 
-
-const API_URL = 'http://localhost:5174/api/funds';
 
 function ApiSortPage(): ReactElement {
   const [data, setData] = useState<FundRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [orderBy, setOrderBy] = useState<string | null>(null);
-  const [orderDir, setOrderDir] = useState<'asc' | 'desc'>('asc');
+  const { orderBy, orderDir, handleSort } = useSortState();
   const [limit, setLimit] = useState(50);
 
   useEffect(() => {
@@ -23,7 +22,7 @@ function ApiSortPage(): ReactElement {
       setLoading(true);
       setError(null);
       try {
-        const requestBody: any = {
+        const requestBody: Record<string, unknown> = {
           fields: 'symbol,symbolName,lastPrice,priceChange,percentChange,managedAssets.format(millions),tradeTime,raw.tradeTime,quickLink',
           lists: 'funds.aum.tsx',
           fieldCaptions: { managedAssets: 'AUM' },
@@ -43,7 +42,7 @@ function ApiSortPage(): ReactElement {
         });
         if (!response.ok) throw new Error('API error');
         const json = await response.json();
-        setData(json.data.map((row: any) => ({
+        setData(json.data.map((row: ApiFundRow) => ({
           symbol: row.symbol,
           symbolName: row.symbolName,
           lastPrice: row.lastPrice,
@@ -53,25 +52,14 @@ function ApiSortPage(): ReactElement {
           tradeTime: row.tradeTime,
           rawTradeTime: row.raw?.tradeTime,
         })));
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
     }
     fetchData();
   }, [orderBy, orderDir, limit]);
-
-    function handleSort(col: string) {
-      if (orderBy === col) {
-        setOrderDir(orderDir === 'asc' ? 'desc' : 'asc');
-      } else {
-        setOrderBy(col);
-        setOrderDir('asc');
-      }
-    }
-
-  // handleSort already defined below, remove duplicate
 
   return (
     <>

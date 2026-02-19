@@ -7,7 +7,7 @@ export const config: WebdriverIO.Config = {
     runner: ['browser', {
         preset: 'react',
         // start browser window when `DEBUG` environment variable is set
-        headless: !Boolean(process.env.DEBUG)
+        headless: !process.env.DEBUG
     }],
     tsConfigPath: './tsconfig.json',
 
